@@ -19,6 +19,7 @@ public class CharacterController2D : MonoBehaviour {
 
 	// Transform just below feet for checking if player is grounded
 	public Transform groundCheck;
+    public Colli
 
 	// player can move?
 	// we want this public so other scripts can access it but we don't want to show in editor as it might confuse designer
@@ -221,8 +222,38 @@ public class CharacterController2D : MonoBehaviour {
         PlaySound(jumpSFX);
     }
 
-	// public function to apply damage to the player
-	public void ApplyDamage (int damage) {
+    void DoAttack()
+    {
+        void OnTriggerEnter2D(Collider2D collision)
+        {
+            if ((collision.tag == "Enemy"))
+            {
+                Enemy OneEnemy = collision.gameObject.GetComponent<CharacterController2D>();
+                if (OneEnemy.playerCanMove)
+                {
+                    // Make sure the enemy is facing the player on attack
+                    Flip(collision.transform.position.x - _transform.position.x);
+
+                    // attack sound
+                    playSound(attackSFX);
+
+                    // stop moving
+                    _rigidbody.velocity = new Vector2(0, 0);
+
+                    // apply damage to the player
+                    OneEnemy.ApplyDamage(damageAmount);
+
+                    // stop to enjoy killing the player
+                    _moveTime = Time.time + stunnedTime;
+                }
+            }
+        }
+    }
+
+
+
+    // public function to apply damage to the player
+    public void ApplyDamage (int damage) {
 		if (playerCanMove) {
 			playerHealth -= damage;
 
